@@ -1,0 +1,9 @@
+{
+    "name": "Blue Screen of Death",
+    "symbol": "BSOD",
+    "image": "https://raw.githubusercontent.com/sanskar-mk2/bsod/master/images/bird.png",
+    "description": "https://bsod.onsolana.xyz",
+    "extensions": {
+        "website": "https://bsod.onsolana.xyz"
+    }
+}
