@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Microsoft Windows</title>
+        <link rel="stylesheet" href="/cssfiles/desktop.css" />
+    </head>
+    <body>
+        <div class="crt"></div>
+        <a href="/not_found.html"
+            ><img
+                src="/images/desktop_program2.png"
+                style="position: absolute; right: 0"
+        /></a>
+        <!--Like this desktop? Goes pretty hard. Yeah, it could be done better I'm sure, but it sure as shit looks better than my site. Man. Windows 98. When I was in school, maybe 2012 or so we were still running these dogshit Windows 98 laptops. They didn't handle modern programs very well. Lots o' crashing and overheating. Some kid got caught wacking it on one of the laptops and we weren't allowed to use them without supervision anymore.-->
+        <a href="/not_found.html">
+            <img
+                src="/images/desktop.png"
+                width="100%"
+                style="position: absolute; left: 0; bottom: 0"
+            />
+        </a>
+        <a href="javascript:void(0)" id="npbtn"
+            ><img
+                src="/images/ca.png"
+                width="118"
+                height="104"
+                style="right: 0"
+        /></a>
+        <a href="/airdrop.html"
+            ><img
+                src="/images/internetwithtext.png"
+                width="118"
+                height="104"
+                style="right: 0"
+        /></a>
+        <a href="/not_found.html"
+            ><img
+                src="/images/discord_icon.png"
+                width="118"
+                height="104"
+                style="right: 0; image-rendering: pixelated"
+        /></a>
+        <a href="javascript:void(0)" id="flappy"
+            ><img
+                src="/images/flappy.png"
+                width="118"
+                height="104"
+                style="right: 0; image-rendering: pixelated"
+        /></a>
+        <canvas
+            id="gameCanvas"
+            style="position: absolute; display: none"
+            width="400"
+            height="600"
+        ></canvas>
+        <div class="notepad-container" id="notepad-window">
+            <div class="notepad-header">
+                <span class="notepad-title">ca.txt - Notepad</span>
+                <span class="notepad-close" id="notepad-close">[X]</span>
+            </div>
+            <div class="notepad-content">
+                <textarea class="notepad-textarea">
+3ZaihYvuAksMXQUYt7boeHGASoFvCGNHREdarJKQxsht
+
+
+todo:
+  [x]burn lp
+  [ ]DONT BURN AIRDROP TOKENS !IMPORTANT
+  [ ]pet cat
+  [ ]hodl
+            </textarea
+                >
+            </div>
+        </div>
+        <iframe
+            src="https://www.youtube.com/embed/tajDxBaPBBM?autoplay=1"
+            width="0"
+            height="0"
+            frameborder="0"
+        >
+        </iframe>
+        <script>
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
+            const birdImage = new Image();
+            const flappybutton = document.getElementById("flappy");
+            birdImage.src = "/images/bird.png";
+            flappybutton.addEventListener("click", () => {
+                canvas.style.display = "block";
+                gameLoop();
+            });
+            let birdX = 50;
+            let birdY = 150;
+            let birdRadius = 20;
+            let birdVelocity = 0;
+            let gravity = 0.2;
+
+            let pipeWidth = 60;
+            let pipeGap = 333;
+            let pipes = [];
+
+            let score = 0;
+            let gameover = false;
+            let gameStarted = false;
+
+            function drawBird() {
+                ctx.drawImage(
+                    birdImage,
+                    birdX - birdRadius,
+                    birdY - birdRadius,
+                    birdRadius * 2,
+                    birdRadius * 2
+                );
+            }
+
+            function updateBird() {
+                birdVelocity += gravity;
+                birdY += birdVelocity;
+
+                if (birdY + birdRadius > canvas.height) {
+                    gameover = true;
+                }
+            }
+
+            function drawPipes() {
+                for (let i = 0; i < pipes.length; i++) {
+                    let pipe = pipes[i];
+                    ctx.fillStyle = "green";
+                    ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top);
+                    ctx.fillRect(
+                        pipe.x,
+                        pipe.bottom,
+                        pipeWidth,
+                        canvas.height - pipe.bottom
+                    );
+                }
+            }
+
+            function updatePipes() {
+                for (let i = 0; i < pipes.length; i++) {
+                    let pipe = pipes[i];
+                    pipe.x -= 2;
+
+                    if (pipe.x + pipeWidth < 0) {
+                        pipes.splice(i, 1);
+                        i--;
+                        score++;
+                    }
+
+                    if (
+                        birdX + birdRadius > pipe.x &&
+                        birdX - birdRadius < pipe.x + pipeWidth &&
+                        (birdY - birdRadius < pipe.top ||
+                            birdY + birdRadius > pipe.bottom)
+                    ) {
+                        gameover = true;
+                    }
+                }
+
+                if (
+                    pipes.length === 0 ||
+                    pipes[pipes.length - 1].x < canvas.width - 200
+                ) {
+                    let pipeTop = Math.random() * (canvas.height - pipeGap);
+                    let pipeBottom = pipeTop + pipeGap;
+                    pipes.push({
+                        x: canvas.width,
+                        top: pipeTop,
+                        bottom: pipeBottom,
+                    });
+                }
+            }
+
+            function drawScore() {
+                ctx.font = "24px Arial";
+                ctx.fillStyle = "black";
+                ctx.fillText("Score: " + score, 10, 30);
+            }
+
+            function drawStartText() {
+                ctx.font = "24px Arial";
+                ctx.fillStyle = "black";
+                ctx.textAlign = "center";
+
+                const text =
+                    "score 100 to get tg link and free airdrop (have to share screenshot)";
+                const words = text.split(" ");
+                const maxWidth = 300;
+                let line = "";
+                let y = canvas.height / 2 - 30;
+
+                for (let i = 0; i < words.length; i++) {
+                    const testLine = line + words[i] + " ";
+                    const metrics = ctx.measureText(testLine);
+                    const testWidth = metrics.width;
+
+                    if (testWidth > maxWidth && i > 0) {
+                        ctx.fillText(line, canvas.width / 2, y);
+                        line = words[i] + " ";
+                        y += 30;
+                    } else {
+                        line = testLine;
+                    }
+                }
+
+                ctx.fillText(line, canvas.width / 2, y);
+            }
+
+            function gameLoop() {
+                ctx.fillStyle = "#FFFFF0";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                if (!gameStarted) {
+                    drawStartText();
+                } else {
+                    drawBird();
+                    updateBird();
+                    drawPipes();
+                    updatePipes();
+                    drawScore();
+
+                    if (!gameover) {
+                        requestAnimationFrame(gameLoop);
+                    } else {
+                        ctx.font = "36px Arial";
+                        ctx.fillStyle = "red";
+                        ctx.fillText(
+                            "Game Over",
+                            canvas.width / 2,
+                            canvas.height / 2
+                        );
+                        window.location.href = "/not_found.html";
+                    }
+                }
+            }
+
+            canvas.addEventListener("click", () => {
+                if (!gameStarted) {
+                    gameStarted = true;
+                    gameLoop();
+                } else {
+                    birdVelocity = -7;
+                }
+            });
+
+            canvas.addEventListener("touchstart", () => {
+                if (!gameStarted) {
+                    gameStarted = true;
+                    gameLoop();
+                } else {
+                    birdVelocity = -7;
+                }
+            });
+
+            let lastTouchEnd = 0;
+            document.addEventListener(
+                "touchend",
+                (e) => {
+                    const now = new Date().getTime();
+                    if (now - lastTouchEnd <= 300) {
+                        e.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                },
+                false
+            );
+
+            const npbtn = document.getElementById("npbtn");
+            notepadWindow = document.getElementById("notepad-window");
+            const notepadClose = document.getElementById("notepad-close");
+            npbtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                notepadWindow.style.display = "block";
+            });
+            notepadClose.addEventListener("click", function () {
+                notepadWindow.style.display = "none";
+            });
+        </script>
+    </body>
+</html>
+<!--Made by Dr. MacGutsy @ https://themaczone.neocities.org/ & Psionic @ https://psionicblades.neocities.org/-->
